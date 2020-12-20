@@ -8,8 +8,6 @@
 #include <QString>
 #include <string>
 #include <boost/lexical_cast.hpp>
-
-
 #include <map>
 
 QT_BEGIN_NAMESPACE
@@ -65,17 +63,17 @@ private:
     /// \brief incomeTax
     /// \param yearlyBeforeTaxes    Total yearly income before taxes taken off
     /// \param totalYearly  Total yearly income calculated from user input
-    /// \param yearlyAfterDeduction
-    /// \return
+    /// \param yearlyAfterDeduction   Total yearly income after initial deduction
+    /// \return   The amount of income tax
     ///
     double incomeTax(double yearlyBeforeTaxes, double totalYearly, double yearlyAfterDeduction);
 
     ///
     /// \brief municipalTax
-    /// \param yearlyBeforeTaxes
-    /// \param totalYearly
-    /// \param yearlyAfterDeduction
-    /// \return
+    /// \param yearlyBeforeTaxes    Total yearly income before taxes taken off
+    /// \param totalYearly  Total yearly income calculated from user input
+    /// \param yearlyAfterDeduction   Total yearly income after initial deduction
+    /// \return a pair containing the amounts of municipal tax and church tax
     ///
     std::pair<double, double> municipalTax(double yearlyBeforeTaxes, double totalYearly, double yearlyAfterDeduction);
 
@@ -86,12 +84,15 @@ private:
     ///
     bool isNumber(std::string str);
 
+
+    void allZeros(double totalYearly);
+
     Ui::MainWindow *ui;
 
     std::map<QString, std::pair<double, double>> taxes;
     bool isHourly = true;
     double churchTax = 0;
-    //double municipalityTax = 0;
+    double municipalTaxPercent = 0;
     double TyELpercent = 0.0715;
     double unemploymentPercent = 0.0125;
     double healthcarePercent = 0.0118;

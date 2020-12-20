@@ -141,7 +141,7 @@
    <widget class="QLabel" name="monthlyWageLabel">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>220</x>
       <y>410</y>
       <width>141</width>
       <height>20</height>
@@ -319,7 +319,7 @@
      <rect>
       <x>570</x>
       <y>410</y>
-      <width>141</width>
+      <width>161</width>
       <height>20</height>
      </rect>
     </property>
@@ -332,7 +332,7 @@
      <rect>
       <x>190</x>
       <y>440</y>
-      <width>191</width>
+      <width>181</width>
       <height>20</height>
      </rect>
     </property>
@@ -421,7 +421,7 @@
    <widget class="QLabel" name="yleTaxLabel">
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>520</x>
       <y>500</y>
       <width>63</width>
       <height>20</height>
@@ -447,9 +447,9 @@
    <widget class="QLabel" name="incomeTaxLabel">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>170</x>
       <y>530</y>
-      <width>111</width>
+      <width>121</width>
       <height>20</height>
      </rect>
     </property>
@@ -460,7 +460,7 @@
    <widget class="QLabel" name="municipalityTaxLabel">
     <property name="geometry">
      <rect>
-      <x>540</x>
+      <x>550</x>
       <y>530</y>
       <width>121</width>
       <height>20</height>

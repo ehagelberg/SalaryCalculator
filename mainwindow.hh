@@ -31,11 +31,13 @@ private slots:
 
     void on_calculatePushButton_clicked();
 
-    void on_municipalitiesComboBox_currentTextChanged(const QString &arg1);
+    void on_municipalitiesComboBox_currentTextChanged(const QString &currentMunicipality);
 
     void on_checkBox_stateChanged(int arg1);
 
     void on_ageComboBox_currentTextChanged(const QString &arg1);
+
+    void on_exitButton_clicked();
 
 private:
     ///
@@ -55,18 +57,27 @@ private:
 
     ///
     /// \brief calculateTaxes
-    /// \param totalYearly
+    /// \param totalYearly  Total yearly income calculated from user input
     ///
     void calculateTaxes(double totalYearly);
 
     ///
     /// \brief incomeTax
+    /// \param yearlyBeforeTaxes    Total yearly income before taxes taken off
+    /// \param totalYearly  Total yearly income calculated from user input
+    /// \param yearlyAfterDeduction
+    /// \return
+    ///
+    double incomeTax(double yearlyBeforeTaxes, double totalYearly, double yearlyAfterDeduction);
+
+    ///
+    /// \brief municipalTax
     /// \param yearlyBeforeTaxes
     /// \param totalYearly
     /// \param yearlyAfterDeduction
     /// \return
     ///
-    double incomeTax(double yearlyBeforeTaxes, double totalYearly, double yearlyAfterDeduction);
+    std::pair<double, double> municipalTax(double yearlyBeforeTaxes, double totalYearly, double yearlyAfterDeduction);
 
     ///
     /// \brief checks if inputs are in correct form
@@ -80,7 +91,7 @@ private:
     std::map<QString, std::pair<double, double>> taxes;
     bool isHourly = true;
     double churchTax = 0;
-    double municipalityTax = 0;
+    //double municipalityTax = 0;
     double TyELpercent = 0.0715;
     double unemploymentPercent = 0.0125;
     double healthcarePercent = 0.0118;

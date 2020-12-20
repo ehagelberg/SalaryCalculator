@@ -1,7 +1,7 @@
 #include "mainwindow.hh"
 #include "ui_mainwindow.h"
 
-
+//Const variables for values that don't depend on user input
 const int UNCHECKED = 0;
 const double DEDUCTION = 750.0;
 const double YLETAX = 0.025;
@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle("Palkkalaskuri");
 
     ui->ageComboBox->addItem ("17-52");
-    ui->ageComboBox->addItem ("52-62");
+    ui->ageComboBox->addItem ("53-62");
     ui->ageComboBox->addItem ("yli 62");
 
     ui->monthlyLineEdit->setEnabled(false);
@@ -93,18 +93,20 @@ void MainWindow::calculateTaxes(double totalYearly)
     ui->yearlyWageLabel->setText(QString::number(totalYearly) + " €");
     double yearlyAfterDeduction = totalYearly - DEDUCTION;
 
-    double taxesPaid = 0.0;
+    double yleTax = 0.0;
 
-    // yle-vero
-    taxesPaid += (yearlyAfterDeduction - 14000) * YLETAX;
-    if (taxesPaid > 163) {
-        taxesPaid = 163.0;
+    // Yle-tax
+    yleTax += (yearlyAfterDeduction - 14000) * YLETAX;
+    if (yleTax > 163) {
+        yleTax = 163.0;
     }
-    else if (taxesPaid < 0) {
-        taxesPaid = 0;
+    else if (yleTax < 0) {
+        yleTax = 0;
     }
-    ui->yleTaxLabel->setText(QString::number(taxesPaid, 'f', 2) + " €");
+    ui->yleTaxLabel->setText(QString::number(yleTax, 'f', 2) + " €");
 
+
+    // Pension, unemployment and healthcare payments
     double TyEL = totalYearly * TyELpercent;
     ui->TyELLabel->setText(QString::number(TyEL, 'f', 2) + " €");
 
@@ -117,12 +119,64 @@ void MainWindow::calculateTaxes(double totalYearly)
     double yearlyBeforeTaxes = yearlyAfterDeduction - TyEL- unemp - healthcare;
 
 
-    // Valtion tulovero
-    double incomeTa = incomeTax(yearlyBeforeTaxes, totalYearly, yearlyAfterDeduction);
+    // State income tax
+    double incomeTaxAmount = incomeTax(yearlyBeforeTaxes, totalYearly, yearlyAfterDeduction);
 
 
-    // Kunnallisvero
-    double deduction = (7230-2500) * 0.51 + (yearlyAfterDeduction - 7230)*0.28;
+    // Get municipal tax and church tax
+    std::pair<double, double> tax = municipalTax(yearlyBeforeTaxes, totalYearly, yearlyAfterDeduction);
+
+    double yearlyNet = yearlyBeforeTaxes - incomeTaxAmount - tax.first - tax.second - yleTax +  DEDUCTION;
+    ui->yearlyNetLabel->setText(QString::number((yearlyNet))+ " €");
+    ui->monthlyNetLabel->setText(QString::number((yearlyNet/12))+ " €");
+}
+
+double MainWindow::incomeTax(double yearlyBeforeTaxes, double totalYearly,
+                             double yearlyAfterDeduction)
+{
+    double incomeTax = 0;
+    if (yearlyBeforeTaxes < 18100) {
+        incomeTax += 0.0;
+    }
+    else if (yearlyBeforeTaxes > 18100 && yearlyBeforeTaxes < 27200) {
+        incomeTax =  8.0 + 0.06 * (yearlyBeforeTaxes - 18100);
+    }
+    else if (yearlyBeforeTaxes > 27200 && yearlyBeforeTaxes < 44800) {
+        incomeTax = 554.0 + 0.1725 * (yearlyBeforeTaxes - 27200);
+    }
+    else if (yearlyBeforeTaxes > 44800 && yearlyBeforeTaxes < 78500) {
+        incomeTax = 3590.0 + 0.2125 * (yearlyBeforeTaxes - 44800);
+    }
+    else if (yearlyBeforeTaxes > 78500) {
+        incomeTax = 10751.25 + 0.3125 * (yearlyBeforeTaxes - 78500);
+    }
+
+    double deduction = (totalYearly - 2500) * 0.125;
+
+    if(deduction > 1770){
+        if(yearlyAfterDeduction > 33000){
+            deduction = 1770 -(yearlyAfterDeduction - 33000) * 0.0184;
+        }
+        else{
+            deduction = 1770;
+        }
+    }
+
+    if(incomeTax - deduction < 0){
+        incomeTax = 0;
+    }
+    else{
+        incomeTax = incomeTax - deduction;
+    }
+
+    ui->incomeTaxLabel->setText(QString::number(incomeTax, 'f', 2) + " €");
+
+    return incomeTax;
+}
+
+std::pair<double, double> MainWindow::municipalTax(double yearlyBeforeTaxes, double totalYearly, double yearlyAfterDeduction)
+{
+    double deduction = (7230-2500) * 0.51 + (totalYearly - 7230)*0.28;
     if(deduction > 3570){
         if(yearlyAfterDeduction > 14000 && yearlyAfterDeduction < 93333){
             deduction = 3570-(yearlyAfterDeduction-14000)*0.045;
@@ -139,61 +193,16 @@ void MainWindow::calculateTaxes(double totalYearly)
     double municipalityTaxAmount = (yearlyBeforeTaxes-deduction)*(taxes.at(currentMunicipality).first/100);
     ui->municipalityTaxLabel->setText(QString::number((municipalityTaxAmount))+ " €");
 
-    double churchTaxAmount = (yearlyBeforeTaxes-deduction)*(taxes.at(currentMunicipality).second/100);
-    ui->churchTaxAmountLabel->setText(QString::number((churchTaxAmount))+ " €");
-
-
-    double temp = (totalYearly - 2500) * 0.125;
-
-    if(temp > 1770){
-        temp = 1770 -(yearlyAfterDeduction - 33000) * 0.0172;
+    double churchTaxAmount = 0;
+    if(ui->checkBox->checkState() == UNCHECKED){
+        churchTaxAmount = 0;
+        ui->churchTaxAmountLabel->setText(QString::number((churchTaxAmount))+ " €");
+    }else{
+        churchTaxAmount = (yearlyBeforeTaxes-deduction)*(taxes.at(currentMunicipality).second/100);
+        ui->churchTaxAmountLabel->setText(QString::number((churchTaxAmount))+ " €");
     }
 
-    double yearlyNet = yearlyBeforeTaxes - (incomeTa-temp) - municipalityTaxAmount - taxesPaid +  DEDUCTION;
-    ui->yearlyNetLabel->setText(QString::number((yearlyNet))+ " €");
-    ui->monthlyNetLabel->setText(QString::number((yearlyNet/12))+ " €");
-}
-
-double MainWindow::incomeTax(double yearlyBeforeTaxes, double totalYearly, double yearlyAfterDeduction)
-{
-    double incomeTax = 0;
-    if (yearlyBeforeTaxes < 18100) {
-        incomeTax += 0.0;
-    }
-    else if (yearlyBeforeTaxes > 18100 && yearlyBeforeTaxes < 27200) {
-        incomeTax =  8.0 + 0.06 * (yearlyBeforeTaxes - 18100);
-    }
-    else if (yearlyBeforeTaxes > 27200 && yearlyBeforeTaxes < 44800) {
-        incomeTax = 536.0 + 0.1725 * (yearlyBeforeTaxes - 27200);
-    }
-    else if (yearlyBeforeTaxes > 44800 && yearlyBeforeTaxes < 78500) {
-        incomeTax = 3590.0 + 0.2125 * (yearlyBeforeTaxes - 44800);
-    }
-    else if (yearlyBeforeTaxes > 78500) {
-        incomeTax = 10751.25 + 0.3125 * (yearlyBeforeTaxes - 78500);
-    }
-
-    double temp = (totalYearly - 2500) * 0.125;
-
-    if(temp > 1770){
-        if(yearlyAfterDeduction > 33000){
-            temp = 1770 -(yearlyAfterDeduction - 33000) * 0.0184;
-        }
-        else{
-            temp = 1770;
-        }
-    }
-
-    if(incomeTax - temp < 0){
-        incomeTax = 0;
-    }
-    else{
-        incomeTax = incomeTax - temp;
-    }
-
-    ui->incomeTaxLabel->setText(QString::number(incomeTax, 'f', 2) + " €");
-
-    return incomeTax;
+    return {municipalityTaxAmount, churchTaxAmount};
 }
 
 bool MainWindow::isNumber(std::string str)
@@ -242,24 +251,27 @@ void MainWindow::on_calculatePushButton_clicked()
     }
 }
 
-void MainWindow::on_municipalitiesComboBox_currentTextChanged(const QString &arg1)
+void MainWindow::on_municipalitiesComboBox_currentTextChanged(const QString &currentMunicipality)
 {
-    QString taxPercentage = QString::number(taxes.at(arg1).first) + " %";
-    municipalityTax = taxPercentage.toDouble();
+    QString taxPercentage = QString::number(taxes.at(currentMunicipality).first) + " %";
+    //municipalityTax = taxPercentage.toDouble();
     ui->percentageLabel->setText(taxPercentage);
+    churchTax = taxes.at(currentMunicipality).second;
+
+    on_checkBox_stateChanged(ui->checkBox->checkState());
+
 }
 
 void MainWindow::on_checkBox_stateChanged(int state)
 {
+    churchTax = taxes.at(ui->municipalitiesComboBox->currentText()).second;
     if(state == UNCHECKED){
+        churchTax = 0;
         ui->churchTaxLabel->setText("");
     }
     else{
-
-        QString currentMunicipality = ui->municipalitiesComboBox->currentText();
         QString churchTaxString = "Kirkollisveroprosentti: " +
-                QString::number(taxes.at(currentMunicipality).second) + " %";
-        churchTax = taxes.at(currentMunicipality).second;
+                QString::number(churchTax) + " %";
         ui->churchTaxLabel->setText(churchTaxString);
     }
 }
@@ -272,4 +284,9 @@ void MainWindow::on_ageComboBox_currentTextChanged(const QString &ageGroup)
     else if(ageGroup == "53-62"){
         TyELpercent = 0.0865;
     }
+}
+
+void MainWindow::on_exitButton_clicked()
+{
+     QCoreApplication::quit();
 }

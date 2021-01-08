@@ -1,5 +1,11 @@
-#include "mainwindow.hh"
+/*
+ * Author: Elias Hagelberg
+ * File: main.cpp
+ * Desc: Main-file of the program
+ */
 
+
+#include "mainwindow.hh"
 #include <QApplication>
 #include <QStyleFactory>
 

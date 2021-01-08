@@ -545,8 +545,23 @@
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuValikko">
+    <property name="title">
+     <string>Valikko</string>
+    </property>
+    <addaction name="actionTietoja"/>
+   </widget>
+   <addaction name="menuValikko"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionTietoja">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Tietoja</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

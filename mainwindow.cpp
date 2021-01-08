@@ -1,5 +1,13 @@
+/*
+ * Author: Elias Hagelberg
+ * File: mainWindow.cpp
+ * Desc: Implemention file for the mainWindow class.
+ */
+
+
 #include "mainwindow.hh"
 #include "ui_mainwindow.h"
+#include "infodialog.hh"
 
 //Const variables for values that don't depend on user input
 const int UNCHECKED = 0;
@@ -26,6 +34,9 @@ MainWindow::MainWindow(QWidget *parent)
     readFile();
     municipalTaxPercent = taxes.at(ui->municipalitiesComboBox->currentText()).first;
     ui->percentageLabel->setText(QString::number(municipalTaxPercent)+ " %");
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -36,7 +47,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::readFile(){
 
-    QFile inputFile("../SalaryCalculator/taxes.txt");
+    QFile inputFile(":/taxes.txt");
     if (inputFile.open(QIODevice::ReadOnly))
     {
       QTextStream in(&inputFile);
@@ -114,7 +125,7 @@ void MainWindow::calculateTaxes(double totalYearly)
     double yearlyAfterDeduction = totalYearly - DEDUCTION;
 
     if(yearlyAfterDeduction < 0){
-        allZeros(totalYearly);
+        smallIncome(totalYearly);
         return;
     }
 
@@ -271,7 +282,7 @@ bool MainWindow::isNumber(std::string str)
     return is_a_number;
 }
 
-void MainWindow::allZeros(double totalYearly)
+void MainWindow::smallIncome(double totalYearly)
 {
     ui->municipalityTaxLabel->setText("0 €");
     ui->churchTaxLabel->setText("0 €");
@@ -355,4 +366,10 @@ void MainWindow::on_ageComboBox_currentTextChanged(const QString &ageGroup)
 void MainWindow::on_exitButton_clicked()
 {
      QCoreApplication::quit();
+}
+
+void MainWindow::on_actionTietoja_triggered()
+{
+    infoDialog dialog;
+    dialog.exec();
 }

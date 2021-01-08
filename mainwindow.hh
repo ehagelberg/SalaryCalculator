@@ -1,3 +1,10 @@
+/*
+ * Author: Elias Hagelberg
+ * File: mainWindow.hh
+ * Desc: Header file for the mainWindow class.
+ */
+
+
 #ifndef MAINWINDOW_HH
 #define MAINWINDOW_HH
 
@@ -36,6 +43,8 @@ private slots:
     void on_ageComboBox_currentTextChanged(const QString &arg1);
 
     void on_exitButton_clicked();
+
+    void on_actionTietoja_triggered();
 
 private:
     ///
@@ -84,8 +93,11 @@ private:
     ///
     bool isNumber(std::string str);
 
-
-    void allZeros(double totalYearly);
+    ///
+    /// \brief smallIncome  Makes the calculations if income is very small
+    /// \param totalYearly  Total yearly income calculated from user input
+    ///
+    void smallIncome(double totalYearly);
 
     Ui::MainWindow *ui;
 

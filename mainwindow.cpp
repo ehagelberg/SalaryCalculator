@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->monthlyLineEdit->setEnabled(false);
     ui->exitButton->setStyleSheet("background-color: red");
     ui->calculatePushButton->setStyleSheet("background-color: green");
+    ui->menuValikko->setStyleSheet("QMenu::item:selected {color: black; background-color: rgb(242, 240, 240)}");
 
     readFile();
     municipalTaxPercent = taxes.at(ui->municipalitiesComboBox->currentText()).first;
@@ -296,6 +297,44 @@ void MainWindow::smallIncome(double totalYearly)
     ui->monthlyNetLabel->setText(QString::number(net/12, 'f', 2)+ " €");
 }
 
+void MainWindow::changeTheme(QString color, QList<QObject*> &list)
+{
+
+    ui->checkBox->setStyleSheet("QCheckBox  {color : " + color + "; }");
+    ui->menubar->setStyleSheet("QMenuBar {color : " + color + ";}");
+
+    for(auto obj: list){
+            QLabel *labelToEdit = qobject_cast<QLabel *>( obj );
+            QRadioButton *radioButton = qobject_cast<QRadioButton *>( obj );
+            QComboBox *comboBox = qobject_cast<QComboBox *>( obj );
+            QLineEdit *lineEdit = qobject_cast<QLineEdit *>( obj );
+
+            if(labelToEdit != nullptr ){
+                labelToEdit->setStyleSheet("QLabel {color :" + color + "; }");
+            }
+            else if(radioButton != nullptr){
+                radioButton->setStyleSheet("QRadioButton {color : " + color + "; }");
+            }
+            else if(comboBox != nullptr){
+                comboBox->setStyleSheet("QComboBox  {color : " + color + "; }");
+            }
+            else if(lineEdit != nullptr){
+                if(darkMode){
+                    lineEdit->setStyleSheet("QLineEdit {background: rgb(99, 99, 99); color : " + color + "; }");
+                }else{
+                    lineEdit->setStyleSheet("QLineEdit {background: white; : " + color + "; }");
+                }
+            }
+    }
+    if(darkMode){
+        ui->menuValikko->setStyleSheet("QMenu {color: "+ color + "} QMenu::item:selected {color:"+ color + "; background-color: rgb(99, 99, 99)}");
+        ui->menuValikko->actions().at(1)->setText("Vaalea tila");
+    }else{
+        ui->menuValikko->setStyleSheet(" QMenu::item:selected {color: black; background-color: rgb(242, 240, 240)}");
+        ui->menuValikko->actions().at(1)->setText("Tumma tila");
+    }
+}
+
 void MainWindow::on_monthlyRadioButton_clicked()
 {
     //Enable and disable right lineEdit boxes
@@ -372,4 +411,26 @@ void MainWindow::on_actionTietoja_triggered()
 {
     infoDialog dialog;
     dialog.exec();
+}
+
+void MainWindow::on_actionDark_mode_triggered()
+{
+    QList<QObject *> list = this->centralWidget()->children();
+
+    if(!darkMode){
+        darkMode = true;
+
+        this->setStyleSheet("background-color: rgb(43, 42, 42);");
+
+        changeTheme("rgb(245, 243, 240)", list);
+
+    }
+    else{
+        darkMode = false;
+
+        this->setStyleSheet("background-color: white;");
+
+        changeTheme("black", list);
+
+    }
 }

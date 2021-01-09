@@ -550,6 +550,7 @@
      <string>Valikko</string>
     </property>
     <addaction name="actionTietoja"/>
+    <addaction name="actionDark_mode"/>
    </widget>
    <addaction name="menuValikko"/>
   </widget>
@@ -560,6 +561,11 @@
    </property>
    <property name="text">
     <string>Tietoja</string>
+   </property>
+  </action>
+  <action name="actionDark_mode">
+   <property name="text">
+    <string>Tumma tila</string>
    </property>
   </action>
  </widget>

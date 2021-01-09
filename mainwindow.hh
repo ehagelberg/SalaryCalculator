@@ -46,6 +46,8 @@ private slots:
 
     void on_actionTietoja_triggered();
 
+    void on_actionDark_mode_triggered();
+
 private:
     ///
     /// \brief reads the file necessary tax percentages
@@ -99,6 +101,9 @@ private:
     ///
     void smallIncome(double totalYearly);
 
+    void changeTheme(QString color, QList<QObject*> &list);
+
+
     Ui::MainWindow *ui;
 
     std::map<QString, std::pair<double, double>> taxes;
@@ -108,6 +113,8 @@ private:
     double TyELpercent = 0.0715;
     double unemploymentPercent = 0.0125;
     double healthcarePercent = 0.0118;
+
+    bool darkMode = false;
 
 };
 #endif // MAINWINDOW_HH
